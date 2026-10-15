@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review submission — Classroom Playlist Creator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../assets/tokens.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/design.css">
+</head>
+<body class="min-h-screen flex flex-col">
+
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<nav class="bg-slate-900 text-slate-300 text-sm" aria-label="Prototype pages">
+  <div class="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+    <span class="font-medium text-slate-400">Prototype</span>
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+      <a class="hover:text-white underline underline-offset-2" href="../index.html">Join</a>
+      <a class="hover:text-white underline underline-offset-2" href="student-survey.html?code=P4-BEATS">Student survey</a>
+      <a class="hover:text-white underline underline-offset-2" href="teacher-dashboard.html">Teacher dashboard</a>
+      <span class="text-white font-medium">Review &amp; sync</span>
+    </div>
+  </div>
+</nav>
+
+<header class="bg-white border-b border-rule">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+    <a href="teacher-dashboard.html" class="btn btn-ghost !px-2 -ml-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+      Dashboard
+    </a>
+    <span class="badge badge-clean" id="providerBadge">YouTube Music connected</span>
+  </div>
+</header>
+
+<main id="main" class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+
+  <!-- Submission header -->
+  <section class="panel p-6">
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold text-ink">Marcus K.</h1>
+        <p class="text-sm text-muted mt-1">
+          Period 4 Music Lab · Desk 08 · 4 tracks
+          <span class="badge badge-code ml-1">P4-BEATS</span>
+        </p>
+      </div>
+      <span class="badge badge-flagged" id="flagSummary">2 need a decision</span>
+    </div>
+
+    <div class="mt-5 pt-5 border-t border-rule">
+      <h2 class="text-sm font-medium text-ink mb-2">Note from student</h2>
+      <p class="text-sm text-muted">
+        “I picked Rockstar for when we're working out and Sunflower for study time.
+        Sunflower is the clean version from the movie.”
+      </p>
+    </div>
+  </section>
+
+  <!-- Tracks -->
+  <section class="panel" aria-labelledby="tracksH">
+    <div class="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h2 id="tracksH" class="text-lg font-medium text-ink">Tracks</h2>
+        <p class="text-sm text-muted mt-1">
+          Pre-checks are advisory — based on the catalog's explicit tag and title keywords.
+          <strong class="text-ink font-medium">Lyrics are not scanned.</strong>
+        </p>
+      </div>
+      <button id="approveCleanBtn" class="btn btn-secondary">Approve all verified-clean</button>
+    </div>
+
+    <p id="trackLoading" class="px-6 pb-6 text-sm text-muted border-t border-rule pt-6" role="status" aria-live="polite">
+      Resolving tracks from the catalog…
+    </p>
+    <p id="trackError" class="px-6 pb-6 text-sm border-t border-rule pt-6" role="alert" hidden>
+      <span class="text-bad font-medium">Catalog unavailable.</span>
+      <span class="text-muted">Track details could not be loaded. Decisions are disabled until they are.</span>
+    </p>
+
+    <div id="trackTableWrap" class="overflow-x-auto border-t border-rule" hidden>
+      <table class="tbl">
+        <caption class="sr-only">Tracks in this submission with pre-check results and decisions</caption>
+        <thead>
+          <tr>
+            <th scope="col">Track</th>
+            <th scope="col">Playlist</th>
+            <th scope="col">Pre-check</th>
+            <th scope="col">Decision</th>
+          </tr>
+        </thead>
+        <tbody id="trackRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Sync -->
+  <section class="panel p-6" aria-labelledby="syncH">
+    <h2 id="syncH" class="text-lg font-medium text-ink">Sync to <span data-provider>YouTube Music</span></h2>
+    <p class="text-sm text-muted mt-1">
+      Each playlist choice syncs to its own playlist. Duplicates and already-synced tracks are skipped.
+    </p>
+
+    <div id="syncTargets" class="mt-5 pt-5 border-t border-rule space-y-3"></div>
+
+    <div class="mt-5 pt-5 border-t border-rule flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <p class="text-sm text-muted" id="syncSummary"></p>
+      <button id="syncBtn" class="btn btn-primary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
+        <span id="syncBtnText">Sync approved tracks</span>
+      </button>
+    </div>
+
+    <div id="syncResult" class="mt-5 pt-5 border-t border-rule" role="status" aria-live="polite" hidden></div>
+  </section>
+</main>
+
+<footer class="border-t border-rule bg-white py-5">
+  <p class="max-w-6xl mx-auto px-4 text-sm text-muted text-center">Classroom Playlist Creator — prototype</p>
+</footer>
+
+<script type="module">
+import { announce, fmtDuration, getTrack, screenTrack } from '../assets/proto.js';
+
+// What the student actually picked, stored the way the schema stores it:
+// a catalog id plus their chosen playlist. Everything else — title, artist,
+// duration, artwork, ISRC, explicit flag — is resolved LIVE from the catalog,
+// exactly as the real app does. Nothing here is hand-typed.
+//
+// (An earlier draft of this page hardcoded ISRCs. Two of the four were wrong.
+//  Resolving them live is why they are now right.)
+const PICKS = [
+  { deezerId: 491446942, target: 'Class Energy',  decision: 'pending'  },
+  { deezerId: 602456552, target: 'Study & Focus', decision: 'pending'  },
+  { deezerId: 75569764,  target: 'Study & Focus', decision: 'pending'  },
+  { deezerId: 15546830,  target: 'Class Energy',  decision: 'pending'  },
+  // A manual request: no catalog id, so nothing to resolve. Student free text only.
+  { manual: { title: 'Our Spring Concert Finale', artist: 'Lincoln HS Band' },
+    target: 'Study & Focus', decision: 'pending' },
+];
+
+let tracks = [];
+
+// Both providers are equal citizens. Swap ?provider=spotify to see the other.
+const PROVIDERS = {
+  youtube: { name:'YouTube Music', url:'https://music.youtube.com', fuzzy:true,
+             playlists:['Period 4 Study Beats (28)','Classroom Energy (15)','Friday Chillout (22)'] },
+  spotify: { name:'Spotify', url:'https://open.spotify.com', fuzzy:false,
+             playlists:['Period 4 Study Beats (28)','Classroom Energy (15)','Friday Chillout (22)'] },
+};
+const PROVIDER = PROVIDERS[(new URLSearchParams(location.search).get('provider') || 'youtube')]
+                 || PROVIDERS.youtube;
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isFlagged = t => t.screen.status !== 'clean';   // flagged OR unverified
+
+function preCheckCell(t) {
+  if (t.screen.status === 'unverified') {
+    return `<span class="badge badge-unverified">Not verified</span>
+            <p class="text-sm text-muted mt-1.5">Student typed this in — it isn't in the
+            catalog, so there is no explicit flag and no ISRC. Find it in
+            ${PROVIDER.name} yourself before syncing.</p>`;
+  }
+  if (!isFlagged(t)) {
+    return `<span class="badge badge-clean">No explicit tag</span>`;
+  }
+  const bits = [];
+  if (t.screen.isExplicitTag) bits.push('Marked explicit by the label');
+  if (t.screen.matchedKeywords.length) bits.push(esc(t.screen.matchedKeywords.join(', ')));
+  return `<span class="badge badge-flagged">Flagged</span>
+          <p class="text-sm text-muted mt-1.5">${bits.join(' · ')}</p>`;
+}
+
+function decisionCell(t) {
+  const name = `decision-${t.id}`;
+  const overrideNote = isFlagged(t) && t.decision === 'approved'
+    ? `<p class="text-sm text-muted mt-1.5">Recorded as a teacher override.</p>` : '';
+  return `
+    <fieldset>
+      <legend class="sr-only">Decision for ${esc(t.title)} by ${esc(t.artist)}</legend>
+      <div class="flex flex-wrap gap-x-4 gap-y-2">
+        <label class="flex items-center gap-2 text-sm text-ink">
+          <input type="radio" name="${name}" value="approved" class="w-4 h-4"
+                 ${t.decision === 'approved' ? 'checked' : ''} data-id="${t.id}"> Approve
+        </label>
+        <label class="flex items-center gap-2 text-sm text-ink">
+          <input type="radio" name="${name}" value="denied" class="w-4 h-4"
+                 ${t.decision === 'denied' ? 'checked' : ''} data-id="${t.id}"> Deny
+        </label>
+      </div>
+      ${overrideNote}
+    </fieldset>`;
+}
+
+function render() {
+  document.getElementById('trackRows').innerHTML = tracks.map(t => `
+    <tr class="${t.decision === 'denied' ? 'bg-rose-50/40' : ''}">
+      <td>
+        <div class="flex gap-3">
+        ${t.artworkUrl ? `<img src="${t.artworkUrl}" alt="" width="40" height="40" class="rounded shrink-0 bg-slate-100">` : ''}
+        <div class="min-w-0">
+        <div class="font-medium text-ink">${esc(t.title)}</div>
+        <div class="text-muted">${esc(t.artist)}${t.durationSec ? ' · ' + fmtDuration(t.durationSec) : ''}</div>
+        <div class="text-muted font-mono text-xs mt-1">${t.isrc ? esc(t.isrc) : 'no ISRC'}</div>
+        </div></div>
+      </td>
+      <td class="text-muted">${esc(t.target)}</td>
+      <td>${preCheckCell(t)}</td>
+      <td>${decisionCell(t)}</td>
+    </tr>`).join('');
+
+  document.querySelectorAll('input[type=radio][data-id]').forEach(r =>
+    r.addEventListener('change', () => {
+      const t = tracks.find(x => x.id === +r.dataset.id);
+      t.decision = r.value;
+      render();
+      announce(`${t.title} ${r.value}.`);
+    })
+  );
+
+  const undecided = tracks.filter(t => t.decision === 'pending').length;
+  document.getElementById('flagSummary').textContent =
+    undecided ? `${undecided} need a decision` : 'All decided';
+  document.getElementById('flagSummary').className =
+    undecided ? 'badge badge-flagged' : 'badge badge-clean';
+
+  renderSync();
+}
+
+function approvedByTarget() {
+  const m = new Map();
+  tracks.filter(t => t.decision === 'approved').forEach(t => {
+    if (!m.has(t.target)) m.set(t.target, []);
+    m.get(t.target).push(t);
+  });
+  return m;
+}
+
+function renderSync() {
+  const groups = approvedByTarget();
+  const wrap = document.getElementById('syncTargets');
+  const total = [...groups.values()].reduce((n, g) => n + g.length, 0);
+
+  wrap.innerHTML = groups.size === 0
+    ? `<p class="text-sm text-muted">No approved tracks yet.</p>`
+    : [...groups.entries()].map(([target, list], i) => `
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <span class="text-sm font-medium text-ink sm:w-40 shrink-0">${esc(target)}</span>
+          <span class="text-sm text-muted sm:w-24 shrink-0">${list.length} track${list.length === 1 ? '' : 's'}</span>
+          <label for="dest-${i}" class="sr-only">Playlist for ${esc(target)}</label>
+          <select id="dest-${i}" class="field">
+            ${PROVIDER.playlists.map(p => `<option>${esc(p)}</option>`).join('')}
+            <option>+ Create new playlist</option>
+          </select>
+        </div>`).join('');
+
+  document.querySelectorAll('[data-provider]').forEach(el => { el.textContent = PROVIDER.name; });
+  document.getElementById('providerBadge').textContent = `${PROVIDER.name} connected`;
+  // Dedupe by ISRC before anything is written — twelve students picking the
+  // same song is one lookup and one insert, not twelve. On YouTube each
+  // duplicate avoided saves 150 quota units.
+  const approved = tracks.filter(t => t.decision === 'approved');
+  const unique = new Set(approved.map(t => t.isrc || 'manual:' + t.id)).size;
+  const dupes = approved.length - unique;
+  const fuzzy = PROVIDER.fuzzy ? approved.filter(t => t.isrc).length : 0;
+
+  document.getElementById('syncSummary').innerHTML = total
+    ? `${unique} track${unique === 1 ? '' : 's'} across ${groups.size} playlist${groups.size === 1 ? '' : 's'}.`
+      + (dupes ? ` <span class="text-muted">${dupes} duplicate${dupes === 1 ? '' : 's'} skipped.</span>` : '')
+      + (fuzzy ? `<br><span class="text-muted">${PROVIDER.name} matches by title, not exact ID — check the playlist afterwards.</span>` : '')
+    : 'Approve at least one track to sync.';
+  document.getElementById('syncBtn').disabled = total === 0;
+}
+
+document.getElementById('approveCleanBtn').addEventListener('click', () => {
+  const n = tracks.filter(t => !isFlagged(t) && t.decision === 'pending').length;
+  tracks.forEach(t => { if (!isFlagged(t) && t.decision === 'pending') t.decision = 'approved'; });
+  render();
+  announce(n ? `${n} unflagged tracks approved.` : 'No unflagged tracks were pending.');
+});
+
+document.getElementById('syncBtn').addEventListener('click', () => {
+  const btn = document.getElementById('syncBtn');
+  const label = document.getElementById('syncBtnText');   // text node only — never
+  const result = document.getElementById('syncResult');    // replace innerText on the
+  btn.disabled = true;                                     // button (that ate the SVG
+  label.textContent = 'Syncing…';                          // in the old mockup)
+  result.hidden = true;
+
+  setTimeout(() => {
+    const groups = approvedByTarget();
+    const total = [...groups.values()].reduce((n, g) => n + g.length, 0);
+    label.textContent = 'Synced';
+    result.hidden = false;
+    result.innerHTML = `
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="flex items-start gap-2.5">
+          <svg class="w-5 h-5 text-ok shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+          <div>
+            <p class="text-sm font-medium text-ink">${total} track${total === 1 ? '' : 's'} synced</p>
+            <p class="text-sm text-muted mt-0.5">Duplicates skipped. Re-syncing adds nothing new.</p>
+          </div>
+        </div>
+        <a href="${PROVIDER.url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary shrink-0">
+          Open in ${PROVIDER.name}
+        </a>
+      </div>`;
+    announce(`${total} tracks synced to ${PROVIDER.name}.`);
+    setTimeout(() => { btn.disabled = false; label.textContent = 'Sync approved tracks'; }, 2500);
+  }, 800);
+});
+
+/** Resolve every pick against the live catalog, then screen and render. */
+async function boot() {
+  const loading = document.getElementById('trackLoading');
+  const errorEl = document.getElementById('trackError');
+  const wrap    = document.getElementById('trackTableWrap');
+  try {
+    const resolved = await Promise.all(PICKS.map(async (p, idx) => {
+      if (p.manual) {
+        const t = { ...p.manual, source:'manual', durationSec:null, artworkUrl:'',
+                    isrc:null, isExplicit:false };
+        return { ...t, id: 'm' + idx, target: p.target, decision: p.decision,
+                 screen: screenTrack(t) };
+      }
+      const t = await getTrack(p.deezerId);
+      return { ...t, source:'catalog', id: p.deezerId, target: p.target,
+               decision: p.decision, screen: screenTrack(t) };
+    }));
+    tracks = resolved;
+    loading.hidden = true;
+    wrap.hidden = false;
+    render();
+    announce(`${tracks.length} tracks loaded. ${tracks.filter(isFlagged).length} flagged.`);
+  } catch (err) {
+    // Fail closed and visibly. Never render a half-resolved track as if it
+    // were verified — a wrong ISRC syncs the wrong song.
+    loading.hidden = true;
+    errorEl.hidden = false;
+    document.getElementById('syncBtn').disabled = true;
+    document.getElementById('approveCleanBtn').disabled = true;
+    document.getElementById('syncSummary').textContent = 'Unavailable until tracks load.';
+    announce('Catalog unavailable. Track details could not be loaded.');
+  }
+}
+
+boot();
+</script>
+</body>
+</html>

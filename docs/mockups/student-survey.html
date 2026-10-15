@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suggest songs — Classroom Playlist Creator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../assets/tokens.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/design.css">
+</head>
+<body class="min-h-screen flex flex-col">
+
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<nav class="bg-slate-900 text-slate-300 text-sm" aria-label="Prototype pages">
+  <div class="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+    <span class="font-medium text-slate-400">Prototype</span>
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+      <a class="hover:text-white underline underline-offset-2" href="../index.html">Join</a>
+      <span class="text-white font-medium">Student survey</span>
+      <a class="hover:text-white underline underline-offset-2" href="teacher-dashboard.html">Teacher dashboard</a>
+      <a class="hover:text-white underline underline-offset-2" href="review-submission.html">Review &amp; sync</a>
+    </div>
+  </div>
+</nav>
+
+<header class="bg-white border-b border-rule">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+    <div class="min-w-0">
+      <h1 class="font-semibold text-ink truncate" id="className">Period 4 Music Lab</h1>
+      <p class="text-sm text-muted">Song suggestions</p>
+    </div>
+    <span class="badge badge-code" id="classCode">P4-BEATS</span>
+  </div>
+</header>
+
+<main id="main" class="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 py-8">
+
+  <div class="panel p-4 mb-6 flex gap-3">
+    <svg class="w-5 h-5 text-accent shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+    <div>
+      <p class="text-sm font-medium text-ink">Search and pick a real track</p>
+      <p class="text-sm text-muted mt-0.5">
+        Your teacher reviews everything before it reaches a playlist. Explicit tracks aren't blocked here —
+        they're just marked, so your teacher can decide.
+      </p>
+    </div>
+  </div>
+
+  <form id="surveyForm" novalidate class="space-y-6">
+
+    <section class="panel p-6">
+      <h2 class="text-lg font-medium text-ink mb-4">About you</h2>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label for="studentName" class="block text-sm font-medium text-ink mb-1.5">
+            Your name <span class="text-bad" aria-hidden="true">*</span><span class="sr-only">(required)</span>
+          </label>
+          <input id="studentName" class="field" placeholder="Alex Morgan" autocomplete="name" required>
+        </div>
+        <div>
+          <label for="studentSeat" class="block text-sm font-medium text-ink mb-1.5">
+            Desk or period <span class="text-muted font-normal">(optional)</span>
+          </label>
+          <input id="studentSeat" class="field" placeholder="Desk 12" autocomplete="off">
+        </div>
+      </div>
+    </section>
+
+    <section class="panel p-6">
+      <div class="flex items-center justify-between gap-4 mb-1">
+        <h2 class="text-lg font-medium text-ink">Your songs</h2>
+        <span class="text-sm text-muted" id="songCounter" aria-live="polite">1 of 10</span>
+      </div>
+      <p class="text-sm text-muted mb-4">Start typing a song name, then pick from the results.</p>
+
+      <div id="songRows" class="space-y-3"></div>
+
+      <button type="button" id="addSongBtn" class="btn btn-secondary mt-3">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        Add another song
+      </button>
+    </section>
+
+    <section class="panel p-6" id="questionsPanel">
+      <h2 class="text-lg font-medium text-ink mb-1">Questions from your teacher</h2>
+      <p class="text-sm text-muted mb-4">These are about your whole submission.</p>
+      <div id="submissionQuestions" class="space-y-5"></div>
+    </section>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <p class="text-sm text-muted">Reviewed by your teacher before syncing.</p>
+      <button type="submit" class="btn btn-primary">Submit suggestions</button>
+    </div>
+  </form>
+</main>
+
+<footer class="border-t border-rule bg-white py-5 mt-8">
+  <p class="max-w-3xl mx-auto px-4 text-sm text-muted text-center">Classroom Playlist Creator — prototype</p>
+</footer>
+
+<div id="doneDlg" class="dlg-backdrop" role="dialog" aria-modal="true" aria-labelledby="doneTitle" hidden>
+  <div class="dlg p-6 text-center">
+    <div class="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 grid place-items-center mx-auto mb-4">
+      <svg class="w-6 h-6 text-ok" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+    </div>
+    <h2 id="doneTitle" class="text-lg font-medium text-ink">Suggestions submitted</h2>
+    <p class="text-sm text-muted mt-2 mb-6" id="doneSummary">Your teacher will review them shortly.</p>
+    <button data-dlg-close data-autofocus class="btn btn-primary w-full">Submit more songs</button>
+  </div>
+</div>
+
+<script type="module">
+import { createDialog, announce, searchCatalog, fmtDuration, screenTrack } from '../assets/proto.js';
+
+const MAX = 10;
+const MAX_MANUAL = 2;   // the escape hatch must not become the bypass route
+
+// Each class is configured by its teacher: playlist targets AND the questions
+// students answer. Question ids are stable — answers key off them — so they are
+// never reused, and editing a label leaves existing answers readable.
+const CLASSES = {
+  'STUDY-22': {
+    name: 'Period 2 Study Hall',
+    lists: ['Instrumental Only', 'Ambient Study'],
+    questions: [
+      { id:'general', label:'General note for your teacher', scope:'submission',
+        required:true, maxLength:500,
+        helpText:'Anything you want your teacher to know about these picks.' },
+    ],
+  },
+  'P4-BEATS': {
+    name: 'Period 4 Music Lab',
+    lists: ['Study & Focus', 'Class Energy', 'Friday Chill'],
+    questions: [
+      { id:'why', label:'Why did you pick this song?', scope:'song',
+        required:true, maxLength:300 },
+      { id:'reminds', label:'What does this song remind you of?', scope:'song',
+        required:false, maxLength:300,
+        helpText:'A place, a person, a memory — anything.' },
+      { id:'general', label:'General note for your teacher', scope:'submission',
+        required:false, maxLength:500 },
+    ],
+  },
+};
+
+const code = (new URLSearchParams(location.search).get('code') || 'P4-BEATS').toUpperCase();
+const cfg  = CLASSES[code] || CLASSES['P4-BEATS'];
+const songQuestions = cfg.questions.filter(q => q.scope === 'song');
+const subQuestions  = cfg.questions.filter(q => q.scope === 'submission');
+
+document.getElementById('classCode').textContent = code;
+document.getElementById('className').textContent = cfg.name;
+
+// nextId is monotonic and NEVER decremented. Reusing a counter as both the row
+// count and the id source produces duplicate DOM ids and mislinked labels.
+let nextId = 0;
+const rows = new Map();          // id -> { picked }
+const rowsEl    = document.getElementById('songRows');
+const counterEl = document.getElementById('songCounter');
+const addBtn    = document.getElementById('addSongBtn');
+
+const esc = s => String(s).replace(/[&<>"']/g, c =>
+  ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+
+/**
+ * Focus a field in a row that was just inserted or re-expanded.
+ * The row sits ABOVE the button that triggered this, so the layout shifts and
+ * the browser's implicit scroll-on-focus computes against the old layout and
+ * overshoots — the field lands below the fold. Suppress that, then scroll the
+ * row ourselves.
+ *
+ * Synchronous on purpose. Two earlier attempts failed:
+ *   • behavior:'smooth' is silently dropped right after a DOM mutation.
+ *   • requestAnimationFrame never fires while the tab is hidden.
+ * scrollIntoView flushes layout itself, so no frame wait is needed.
+ */
+function focusRow(row, input) {
+  input.focus({ preventScroll: true });
+  row.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+}
+
+/** One question, as a labelled textarea. Used at both scopes. */
+function questionField(q, fieldId, forced) {
+  const required = q.required || forced;
+  return `
+    <div data-question="${q.id}">
+      <label for="${fieldId}" class="block text-sm font-medium text-ink mb-1">
+        ${esc(q.label)}
+        ${required
+          ? '<span class="text-bad" aria-hidden="true">*</span><span class="sr-only">(required)</span>'
+          : '<span class="text-muted font-normal">(optional)</span>'}
+      </label>
+      ${q.helpText ? `<p class="text-sm text-muted mb-2" id="${fieldId}-help">${esc(q.helpText)}</p>` : ''}
+      <textarea id="${fieldId}" rows="2" class="field" maxlength="${q.maxLength}"
+        ${q.helpText ? `aria-describedby="${fieldId}-help"` : ''}></textarea>
+      <p data-qerror class="text-sm text-bad font-medium mt-1.5" role="alert" hidden></p>
+    </div>`;
+}
+
+function playlistOptions() {
+  return cfg.lists.map(l => `<option value="${esc(l)}">${esc(l)}</option>`).join('');
+}
+
+function addRow() {
+  if (rows.size >= MAX) return null;
+  const id = ++nextId;
+  rows.set(id, { picked: null });
+
+  const row = document.createElement('div');
+  row.className = 'border border-rule rounded-lg p-3';
+  row.id = `row-${id}`;
+  row.innerHTML = `
+    <div class="flex items-start justify-between gap-3 mb-2">
+      <span data-song-label class="text-sm font-medium text-muted pt-2.5">Song ${rows.size}</span>
+      <button type="button" data-remove class="btn btn-ghost !min-h-0 !py-1.5 !px-2 text-sm">Remove</button>
+    </div>
+
+    <div data-search-wrap>
+      <label for="q-${id}" class="block text-sm font-medium text-ink mb-1.5">Search for a song</label>
+      <input id="q-${id}" class="field" placeholder="Song name or artist" autocomplete="off"
+             role="combobox" aria-expanded="false" aria-controls="results-${id}" aria-autocomplete="list">
+      <div id="results-${id}" role="listbox" aria-label="Search results" class="mt-2 space-y-1"></div>
+      <p data-status class="text-sm text-muted mt-2" role="status" aria-live="polite"></p>
+    </div>
+
+    <div data-manual hidden class="mt-1">
+      <p class="text-sm font-medium text-ink mb-1">Request it manually</p>
+      <p class="text-sm text-muted mb-3">
+        Your teacher has to look this one up by hand, so it takes longer to approve.
+        Searching is faster if you can find it.
+      </p>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div>
+          <label data-manual-title-label class="block text-sm font-medium text-ink mb-1.5">Song title</label>
+          <input class="field" data-manual-title placeholder="Song title">
+        </div>
+        <div>
+          <label data-manual-artist-label class="block text-sm font-medium text-ink mb-1.5">Artist</label>
+          <input class="field" data-manual-artist placeholder="Artist">
+        </div>
+      </div>
+      <p data-manual-error class="text-sm text-bad font-medium mt-2" role="alert" hidden></p>
+      <div class="flex flex-wrap gap-2 mt-3">
+        <button type="button" data-manual-save class="btn btn-secondary">Use this</button>
+        <button type="button" data-manual-cancel class="btn btn-ghost">Back to search</button>
+      </div>
+    </div>
+
+    <div data-picked hidden></div>
+    <div data-song-questions hidden class="mt-3 pt-3 border-t border-rule space-y-4"></div>
+
+    <div data-target hidden class="mt-3 pt-3 border-t border-rule">
+      <label for="pl-${id}" class="block text-sm font-medium text-ink mb-1.5">Which playlist?</label>
+      <select id="pl-${id}" class="field">${playlistOptions()}</select>
+    </div>`;
+
+  rowsEl.appendChild(row);
+  wireRow(id, row);
+  refresh();
+  return row;
+}
+
+function wireRow(id, row) {
+  const input    = row.querySelector('input[role=combobox]');
+  const results  = row.querySelector('[role=listbox]');
+  const status   = row.querySelector('[data-status]');
+  const pickedEl = row.querySelector('[data-picked]');
+  const targetEl = row.querySelector('[data-target]');
+  const songQEl  = row.querySelector('[data-song-questions]');
+  const searchWrap = row.querySelector('[data-search-wrap]');
+  const manualEl = row.querySelector('[data-manual]');
+  const mTitle   = row.querySelector('[data-manual-title]');
+  const mArtist  = row.querySelector('[data-manual-artist]');
+  const mError   = row.querySelector('[data-manual-error]');
+  let timer;
+
+  mTitle.id  = `mt-${id}`;
+  mArtist.id = `ma-${id}`;
+  row.querySelector('[data-manual-title-label]').htmlFor  = mTitle.id;
+  row.querySelector('[data-manual-artist-label]').htmlFor = mArtist.id;
+
+  row.querySelector('[data-remove]').addEventListener('click', () => {
+    row.remove(); rows.delete(id); refresh(); announce('Song removed.');
+  });
+
+  const manualCountElsewhere = () =>
+    [...rows.entries()].filter(([rid, r]) => rid !== id && r.picked?.source === 'manual').length;
+
+  function openManual() {
+    if (manualCountElsewhere() >= MAX_MANUAL) {
+      status.innerHTML = `<span class="text-bad font-medium">You can request at most ${MAX_MANUAL} songs manually. Try searching for this one.</span>`;
+      announce(`Limit reached: at most ${MAX_MANUAL} manual requests per submission.`);
+      return;
+    }
+    searchWrap.hidden = true;
+    manualEl.hidden = false;
+    mTitle.value = input.value.trim();
+    focusRow(row, mTitle);
+  }
+
+  row.querySelector('[data-manual-cancel]').addEventListener('click', () => {
+    manualEl.hidden = true; searchWrap.hidden = false; mError.hidden = true;
+    focusRow(row, input);
+  });
+
+  row.querySelector('[data-manual-save]').addEventListener('click', () => {
+    const title = mTitle.value.trim(), artist = mArtist.value.trim();
+    if (!title || !artist) {
+      mError.textContent = 'Enter both a song title and an artist.';
+      mError.hidden = false;
+      (title ? mArtist : mTitle).focus();
+      announce('Error: enter both a song title and an artist.');
+      return;
+    }
+    mError.hidden = true;
+    pick({ title, artist, source: 'manual', durationSec: null, artworkUrl: '',
+           isExplicit: false, deezerId: null, isrc: null });
+  });
+
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    const term = input.value.trim();
+    results.innerHTML = '';
+    input.setAttribute('aria-expanded', 'false');
+    if (term.length < 2) { status.textContent = ''; return; }
+    status.textContent = 'Searching…';
+    timer = setTimeout(() => runSearch(term), 250);
+  });
+
+  async function runSearch(term) {
+    try {
+      const hits = await searchCatalog(term, 6);
+      if (!hits.length) {
+        status.innerHTML = '';
+        status.append('No matches. Searching by artist name works better than lyrics. ');
+        const link = document.createElement('button');
+        link.type = 'button';
+        link.className = 'btn btn-ghost !min-h-0 !py-0 !px-1 text-sm underline';
+        link.textContent = "Can't find it? Request it manually";
+        link.addEventListener('click', openManual);
+        status.append(link);
+        announce('No matches found. You can request the song manually.');
+        return;
+      }
+      status.textContent = '';
+      input.setAttribute('aria-expanded', 'true');
+      results.innerHTML = '';
+      hits.forEach(t => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('role', 'option');
+        btn.setAttribute('aria-selected', 'false');
+        // Explicit accessible name: the nested spans/img do not compute a
+        // usable one on their own.
+        btn.setAttribute('aria-label',
+          `${t.title} by ${t.artist}, ${fmtDuration(t.durationSec)}` +
+          (t.isExplicit ? ', marked explicit' : ''));
+        btn.className = 'w-full flex items-center gap-3 p-2 rounded-lg border border-rule bg-white hover:bg-slate-50 text-left';
+        btn.innerHTML = `
+          <img src="${t.artworkUrl}" alt="" width="40" height="40" class="rounded shrink-0 bg-slate-100">
+          <span class="min-w-0 flex-1">
+            <span class="block text-sm font-medium text-ink truncate">${esc(t.title)}</span>
+            <span class="block text-sm text-muted truncate">${esc(t.artist)} · ${fmtDuration(t.durationSec)}</span>
+          </span>
+          ${t.isExplicit ? '<span class="badge badge-flagged shrink-0">Explicit</span>' : ''}`;
+        btn.addEventListener('click', () => pick(t));
+        results.appendChild(btn);
+      });
+      announce(`${hits.length} results for ${term}.`);
+    } catch {
+      // Degrade to a visible error. Never silently accept free text here — that
+      // would reintroduce the disambiguation problem this design removes.
+      status.innerHTML = '<span class="text-bad font-medium">Catalog unavailable. Try again shortly.</span>';
+    }
+  }
+
+  function pick(t) {
+    const source = t.source || 'catalog';
+    const scr = screenTrack({ ...t, source });
+    rows.get(id).picked = { ...t, source, screen: scr };
+
+    searchWrap.hidden = true;
+    manualEl.hidden = true;
+    pickedEl.hidden = false;
+    targetEl.hidden = false;
+
+    // A flagged or unverified track must be explained regardless of what the
+    // teacher marked optional.
+    const forced = scr.status !== 'clean';
+    if (songQuestions.length) {
+      songQEl.hidden = false;
+      songQEl.innerHTML = songQuestions
+        .map((q, qi) => questionField(q, `sq-${id}-${q.id}`, forced && qi === 0)).join('');
+    }
+
+    const statusBlock =
+      scr.status === 'unverified'
+        ? `<div class="mt-3 flex items-start gap-2">
+             <span class="badge badge-unverified shrink-0">Manual request</span>
+             <p class="text-sm text-muted">We couldn't check this against the catalog, so your
+             teacher has to look it up by hand.</p>
+           </div>`
+      : scr.status === 'flagged'
+        ? `<div class="mt-3 flex items-start gap-2">
+             <span class="badge badge-flagged shrink-0">Flagged</span>
+             <p class="text-sm text-muted">
+               ${scr.isExplicitTag ? 'Marked explicit by the label. ' : ''}
+               ${scr.matchedKeywords.length ? esc(scr.matchedKeywords.join(', ')) + '. ' : ''}
+               Your teacher decides.
+             </p>
+           </div>`
+        : `<div class="mt-3"><span class="badge badge-clean">No explicit tag</span></div>`;
+
+    const art = t.artworkUrl
+      ? `<img src="${t.artworkUrl}" alt="" width="48" height="48" class="rounded shrink-0 bg-slate-100">`
+      : `<div class="w-12 h-12 rounded shrink-0 bg-slate-100 grid place-items-center" aria-hidden="true">
+           <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66A2.25 2.25 0 0019.5 12.75V6.75M9 15.75v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.75V6.75"/></svg>
+         </div>`;
+
+    pickedEl.innerHTML = `
+      <div class="flex items-center gap-3">
+        ${art}
+        <div class="min-w-0 flex-1">
+          <div class="text-sm font-medium text-ink truncate">${esc(t.title)}</div>
+          <div class="text-sm text-muted truncate">${esc(t.artist)}${t.durationSec ? ' · ' + fmtDuration(t.durationSec) : ''}</div>
+        </div>
+        <button type="button" data-change class="btn btn-ghost !min-h-0 !py-1.5 !px-2 text-sm">Change</button>
+      </div>
+      ${statusBlock}`;
+
+    pickedEl.querySelector('[data-change]').addEventListener('click', () => {
+      rows.get(id).picked = null;
+      pickedEl.hidden = true; targetEl.hidden = true;
+      songQEl.hidden = true; songQEl.innerHTML = '';
+      manualEl.hidden = true; searchWrap.hidden = false;
+      results.innerHTML = ''; input.value = '';
+      refresh();
+      focusRow(row, input);
+    });
+
+    announce(`Selected ${t.title} by ${t.artist}.` +
+      (scr.status === 'flagged' ? ' This track is flagged.'
+       : scr.status === 'unverified' ? ' This is a manual request.' : ''));
+    refresh();
+  }
+}
+
+function refresh() {
+  counterEl.textContent = `${rows.size} of ${MAX}`;
+  addBtn.disabled = rows.size >= MAX;
+  [...rowsEl.children].forEach((row, i) => {
+    row.querySelector('[data-song-label]').textContent = `Song ${i + 1}`;
+    const rm = row.querySelector('[data-remove]');
+    rm.setAttribute('aria-label', `Remove song ${i + 1}`);
+    rm.hidden = rowsEl.children.length === 1;
+  });
+}
+
+function renderSubmissionQuestions() {
+  const panel = document.getElementById('questionsPanel');
+  if (!subQuestions.length) { panel.hidden = true; return; }
+  document.getElementById('submissionQuestions').innerHTML =
+    subQuestions.map(q => questionField(q, `sq-${q.id}`, false)).join('');
+}
+
+/** Validate one question block. */
+function checkField(container, required) {
+  const ta  = container.querySelector('textarea');
+  const err = container.querySelector('[data-qerror]');
+  err.hidden = true;
+  ta.removeAttribute('aria-invalid');
+  if (required && !ta.value.trim()) {
+    err.textContent = 'This one is required.';
+    err.hidden = false;
+    ta.setAttribute('aria-invalid', 'true');
+    return { ok: false, field: ta };
+  }
+  return { ok: true };
+}
+
+addBtn.addEventListener('click', () => {
+  const row = addRow();
+  if (row) focusRow(row, row.querySelector('input[role=combobox]'));
+});
+
+const doneDlg = createDialog('doneDlg');
+
+document.getElementById('surveyForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const picked = [...rows.entries()].filter(([, r]) => r.picked);
+
+  if (!picked.length) {
+    announce('Error: pick at least one song before submitting.');
+    rowsEl.querySelector('input')?.focus();
+    return;
+  }
+
+  const failures = [];
+
+  // Song-scoped questions. Mirrors the server rule: teacher-set `required`,
+  // escalated to required when that song is flagged or unverified.
+  picked.forEach(([rid, r]) => {
+    const row = document.getElementById(`row-${rid}`);
+    const forced = r.picked.screen.status !== 'clean';
+    row.querySelectorAll('[data-song-questions] [data-question]').forEach((c, qi) => {
+      const q = songQuestions[qi];
+      const res = checkField(c, q.required || (forced && qi === 0));
+      if (!res.ok) failures.push(res);
+    });
+  });
+
+  document.querySelectorAll('#submissionQuestions [data-question]').forEach((c, qi) => {
+    const res = checkField(c, subQuestions[qi].required);
+    if (!res.ok) failures.push(res);
+  });
+
+  if (failures.length) {
+    announce(`${failures.length} question${failures.length === 1 ? '' : 's'} still ` +
+             `need${failures.length === 1 ? 's' : ''} an answer.`);
+    failures[0].field.focus();
+    return;
+  }
+
+  const manualCount = picked.filter(([, r]) => r.picked.source === 'manual').length;
+  document.getElementById('doneSummary').textContent =
+    `${picked.length} song${picked.length === 1 ? '' : 's'} sent to your teacher for review.` +
+    (manualCount ? ` ${manualCount} need${manualCount === 1 ? 's' : ''} looking up by hand.` : '');
+  doneDlg.open();
+});
+
+renderSubmissionQuestions();
+addRow();
+</script>
+</body>
+</html>

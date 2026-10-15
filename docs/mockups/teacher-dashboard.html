@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher dashboard — Classroom Playlist Creator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../assets/tokens.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/design.css">
+</head>
+<body class="min-h-screen flex flex-col">
+
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<nav class="bg-slate-900 text-slate-300 text-sm" aria-label="Prototype pages">
+  <div class="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+    <span class="font-medium text-slate-400">Prototype</span>
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+      <a class="hover:text-white underline underline-offset-2" href="../index.html">Join</a>
+      <a class="hover:text-white underline underline-offset-2" href="student-survey.html?code=P4-BEATS">Student survey</a>
+      <span class="text-white font-medium">Teacher dashboard</span>
+      <a class="hover:text-white underline underline-offset-2" href="review-submission.html">Review &amp; sync</a>
+    </div>
+  </div>
+</nav>
+
+<header class="bg-white border-b border-rule">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+    <div>
+      <h1 class="font-semibold text-ink">Teacher dashboard</h1>
+      <p class="text-sm text-muted">Ms. Rivera</p>
+    </div>
+    <a href="../index.html" class="btn btn-secondary">Sign out</a>
+  </div>
+</header>
+
+<main id="main" class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+
+  <!-- Provider connection -->
+  <section class="panel p-6" aria-labelledby="providerH">
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div>
+        <h2 id="providerH" class="text-lg font-medium text-ink">Music provider</h2>
+        <p class="text-sm text-muted mt-1 max-w-xl">
+          Connect once. Your playlists load here, and approved tracks sync straight into them.
+        </p>
+      </div>
+      <div id="providerState"></div>
+    </div>
+
+    <div id="providerBody" class="mt-5 pt-5 border-t border-rule"></div>
+  </section>
+
+  <!-- Class surveys -->
+  <section class="panel" aria-labelledby="surveysH">
+    <div class="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h2 id="surveysH" class="text-lg font-medium text-ink">Class surveys</h2>
+        <p class="text-sm text-muted mt-1">Each class gets its own code and playlist destinations.</p>
+      </div>
+      <button id="newSurveyBtn" class="btn btn-primary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        New survey
+      </button>
+    </div>
+    <div class="overflow-x-auto border-t border-rule">
+      <table class="tbl">
+        <caption class="sr-only">Class surveys with join codes and status</caption>
+        <thead>
+          <tr>
+            <th scope="col">Class</th>
+            <th scope="col">Code</th>
+            <th scope="col">Playlists</th>
+            <th scope="col">Responses</th>
+            <th scope="col">Status</th>
+            <th scope="col"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody id="surveyRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Submissions -->
+  <section class="panel" aria-labelledby="subsH">
+    <div class="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h2 id="subsH" class="text-lg font-medium text-ink">Student responses</h2>
+        <p class="text-sm text-muted mt-1">Updates live as students submit.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <label for="classFilter" class="sr-only">Filter by class</label>
+        <select id="classFilter" class="field !w-auto">
+          <option value="all">All classes</option>
+          <option value="P4-BEATS">Period 4 Music Lab</option>
+          <option value="STUDY-22">Period 2 Study Hall</option>
+        </select>
+        <label for="statusFilter" class="sr-only">Filter by status</label>
+        <select id="statusFilter" class="field !w-auto">
+          <option value="all">All statuses</option>
+          <option value="pending">Needs review</option>
+          <option value="approved">Approved</option>
+          <option value="synced">Synced</option>
+        </select>
+      </div>
+    </div>
+    <div class="overflow-x-auto border-t border-rule">
+      <table class="tbl">
+        <caption class="sr-only">Student submissions awaiting review</caption>
+        <thead>
+          <tr>
+            <th scope="col">Student</th>
+            <th scope="col">Class</th>
+            <th scope="col">Songs</th>
+            <th scope="col">Pre-check</th>
+            <th scope="col">Status</th>
+            <th scope="col"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody id="subRows"></tbody>
+      </table>
+    </div>
+    <p id="subEmpty" class="p-6 text-sm text-muted border-t border-rule" hidden>
+      No submissions match these filters.
+    </p>
+  </section>
+</main>
+
+<footer class="border-t border-rule bg-white py-5">
+  <p class="max-w-6xl mx-auto px-4 text-sm text-muted text-center">Classroom Playlist Creator — prototype</p>
+</footer>
+
+<!-- New survey dialog -->
+<div id="newSurveyDlg" class="dlg-backdrop" role="dialog" aria-modal="true" aria-labelledby="newSurveyTitle" hidden>
+  <div class="dlg p-6 max-h-[85vh] overflow-y-auto">
+    <div class="flex items-start justify-between gap-4 mb-5">
+      <h2 id="newSurveyTitle" class="text-lg font-medium text-ink">New class survey</h2>
+      <button data-dlg-close class="btn btn-ghost !min-h-0 !p-2 -m-2" aria-label="Close dialog">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="newSurveyForm" novalidate class="space-y-4">
+      <div>
+        <label for="newClassName" class="block text-sm font-medium text-ink mb-1.5">Class name</label>
+        <input id="newClassName" class="field" placeholder="Period 6 Band" data-autofocus required>
+      </div>
+      <div>
+        <label for="newCode" class="block text-sm font-medium text-ink mb-1.5">Join code</label>
+        <div class="flex gap-2">
+          <input id="newCode" class="field font-mono font-semibold uppercase" value="P6-BAND" required>
+          <button type="button" id="randomizeBtn" class="btn btn-secondary shrink-0">Randomize</button>
+        </div>
+        <p class="text-sm text-muted mt-1.5">2–12 characters. Students type this, so keep it easy to say aloud.</p>
+      </div>
+      <fieldset>
+        <legend class="text-sm font-medium text-ink mb-2">Playlist destinations</legend>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2.5 text-sm text-ink"><input type="checkbox" class="w-4 h-4" checked> Study &amp; Focus</label>
+          <label class="flex items-center gap-2.5 text-sm text-ink"><input type="checkbox" class="w-4 h-4" checked> Class Energy</label>
+          <label class="flex items-center gap-2.5 text-sm text-ink"><input type="checkbox" class="w-4 h-4"> Friday Chill</label>
+        </div>
+        <p class="text-sm text-muted mt-2">Each maps to a real playlist in your connected account.</p>
+      </fieldset>
+      <fieldset class="pt-4 border-t border-rule">
+        <legend class="text-sm font-medium text-ink mb-1">Questions for students</legend>
+        <p class="text-sm text-muted mb-3">
+          Ask once per song, or once for the whole submission.
+          <span id="qCost" class="block mt-0.5"></span>
+        </p>
+        <div id="questionList" class="space-y-3"></div>
+        <button type="button" id="addQuestionBtn" class="btn btn-secondary mt-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+          Add question
+        </button>
+      </fieldset>
+
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" data-dlg-close class="btn btn-secondary">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create survey</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="module">
+import { createDialog, announce } from '../assets/proto.js';
+
+let connected = false;
+
+const surveys = [
+  { cls:'Period 4 Music Lab', code:'P4-BEATS', lists:['Study & Focus','Class Energy','Friday Chill'], n:3, active:true },
+  { cls:'Period 2 Study Hall', code:'STUDY-22', lists:['Instrumental Only','Ambient Study'], n:1, active:true },
+  { cls:'Period 6 Band',       code:'P6-BAND',  lists:['Warmup'], n:0, active:false },
+];
+
+const subs = [
+  { name:'Marcus K.', seat:'Desk 08', code:'P4-BEATS', songs:3, flagged:1, status:'pending' },
+  { name:'David T.',  seat:'Desk 14', code:'P4-BEATS', songs:4, flagged:0, status:'pending' },
+  { name:'Maya L.',   seat:'Desk 02', code:'P4-BEATS', songs:2, flagged:0, status:'approved' },
+  { name:'Chloe S.',  seat:'Period 2',code:'STUDY-22', songs:1, flagged:0, status:'synced' },
+];
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function renderProvider() {
+  const state = document.getElementById('providerState');
+  const body  = document.getElementById('providerBody');
+  if (connected) {
+    state.innerHTML = `<span class="badge badge-clean">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+      Spotify connected</span>`;
+    body.innerHTML = `
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <p class="text-sm text-ink font-medium">4 playlists available</p>
+          <p class="text-sm text-muted mt-0.5">
+            Period 4 Study Beats · Classroom Energy · Friday Chillout · Gym Warmup
+          </p>
+        </div>
+        <button id="disconnectBtn" class="btn btn-secondary shrink-0">Disconnect Spotify</button>
+      </div>`;
+    body.querySelector('#disconnectBtn').addEventListener('click', () => {
+      connected = false; renderProvider(); announce('Spotify disconnected.');
+    });
+  } else {
+    state.innerHTML = `<span class="badge badge-pending">Not connected</span>`;
+    body.innerHTML = `
+      <p class="text-sm text-muted mb-4">
+        You can create surveys and review submissions without connecting. A provider is only
+        needed to sync approved tracks.
+      </p>
+      <div class="flex flex-wrap gap-2">
+        <button id="connectSpotify" class="btn btn-primary">Connect Spotify</button>
+        <button id="connectYouTube" class="btn btn-secondary">Connect YouTube</button>
+      </div>
+      <p class="text-sm text-muted mt-4">
+        YouTube has no explicit-content flag, so pre-checks there rely on the catalog only.
+      </p>`;
+    body.querySelector('#connectSpotify').addEventListener('click', () => {
+      connected = true; renderProvider(); announce('Spotify connected. 4 playlists loaded.');
+    });
+    body.querySelector('#connectYouTube').addEventListener('click', () => {
+      connected = true; renderProvider(); announce('YouTube connected.');
+    });
+  }
+}
+
+function renderSurveys() {
+  document.getElementById('surveyRows').innerHTML = surveys.map(s => `
+    <tr>
+      <td class="font-medium text-ink">${esc(s.cls)}</td>
+      <td><span class="badge badge-code">${esc(s.code)}</span></td>
+      <td class="text-muted">${s.lists.map(esc).join(', ')}</td>
+      <td>${s.n}</td>
+      <td><span class="badge ${s.active ? 'badge-clean' : 'badge-pending'}">${s.active ? 'Open' : 'Closed'}</span></td>
+      <td>
+        <div class="flex justify-end gap-1">
+          <button class="btn btn-ghost !min-h-0 !py-1.5 !px-2.5 text-sm" data-copy="${esc(s.code)}">Copy link</button>
+          <button class="btn btn-ghost !min-h-0 !py-1.5 !px-2.5 text-sm" data-toggle="${esc(s.code)}">${s.active ? 'Close' : 'Reopen'}</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', async () => {
+    const url = `${location.origin}/mockups/student-survey.html?code=${b.dataset.copy}`;
+    try { await navigator.clipboard.writeText(url); announce(`Link for ${b.dataset.copy} copied.`); b.textContent = 'Copied'; }
+    catch { announce('Copy failed.'); b.textContent = 'Copy failed'; }
+    setTimeout(() => { b.textContent = 'Copy link'; }, 1800);
+  }));
+  document.querySelectorAll('[data-toggle]').forEach(b => b.addEventListener('click', () => {
+    const s = surveys.find(x => x.code === b.dataset.toggle);
+    s.active = !s.active; renderSurveys();
+    announce(`${s.cls} is now ${s.active ? 'open' : 'closed'}.`);
+  }));
+}
+
+const STATUS = {
+  pending:  ['badge-pending','Needs review'],
+  approved: ['badge-clean','Approved'],
+  synced:   ['badge-pending','Synced'],
+};
+
+function renderSubs() {
+  const cf = document.getElementById('classFilter').value;
+  const sf = document.getElementById('statusFilter').value;
+  const rows = subs.filter(s => (cf === 'all' || s.code === cf) && (sf === 'all' || s.status === sf));
+  document.getElementById('subEmpty').hidden = rows.length > 0;
+  document.getElementById('subRows').innerHTML = rows.map(s => `
+    <tr>
+      <td>
+        <div class="font-medium text-ink">${esc(s.name)}</div>
+        <div class="text-muted">${esc(s.seat)}</div>
+      </td>
+      <td><span class="badge badge-code">${esc(s.code)}</span></td>
+      <td>${s.songs}</td>
+      <td>${s.flagged
+        ? `<span class="badge badge-flagged">${s.flagged} flagged</span>`
+        : `<span class="badge badge-clean">No flags</span>`}</td>
+      <td><span class="badge ${STATUS[s.status][0]}">${STATUS[s.status][1]}</span></td>
+      <td class="text-right">
+        <a href="review-submission.html" class="btn ${s.status === 'pending' ? 'btn-primary' : 'btn-secondary'} !min-h-0 !py-1.5 !px-3 text-sm">
+          ${s.status === 'synced' ? 'View' : 'Review'}
+        </a>
+      </td>
+    </tr>`).join('');
+}
+
+document.getElementById('classFilter').addEventListener('change', renderSubs);
+document.getElementById('statusFilter').addEventListener('change', renderSubs);
+
+// --- Question editor -------------------------------------------------------
+// Ids are stable and never reused: student answers key off them, so renaming a
+// label keeps existing answers readable while a reused id would silently
+// re-attach old answers to a new question.
+let qSeq = 0;
+let questions = [];
+
+function newQuestion(over = {}) {
+  return { id: `q${++qSeq}`, label: '', scope: 'submission', required: true, ...over };
+}
+
+function renderQuestions() {
+  const list = document.getElementById('questionList');
+  list.innerHTML = questions.map((q, i) => `
+    <div class="border border-rule rounded-lg p-3 space-y-3" data-q="${q.id}">
+      <div class="flex items-start justify-between gap-3">
+        <span class="text-sm font-medium text-muted pt-2.5">Question ${i + 1}</span>
+        <button type="button" data-q-remove class="btn btn-ghost !min-h-0 !py-1.5 !px-2 text-sm"
+                aria-label="Remove question ${i + 1}">Remove</button>
+      </div>
+      <div>
+        <label for="ql-${q.id}" class="block text-sm font-medium text-ink mb-1.5">Question</label>
+        <input id="ql-${q.id}" data-q-label class="field" value="${esc(q.label)}"
+               placeholder="Why did you pick this song?">
+      </div>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div>
+          <label for="qs-${q.id}" class="block text-sm font-medium text-ink mb-1.5">Ask</label>
+          <select id="qs-${q.id}" data-q-scope class="field">
+            <option value="submission" ${q.scope === 'submission' ? 'selected' : ''}>Once per submission</option>
+            <option value="song" ${q.scope === 'song' ? 'selected' : ''}>Once per song</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <label class="flex items-center gap-2.5 text-sm text-ink min-h-[44px]">
+            <input type="checkbox" data-q-required class="w-4 h-4" ${q.required ? 'checked' : ''}>
+            Required
+          </label>
+        </div>
+      </div>
+    </div>`).join('');
+
+  list.querySelectorAll('[data-q]').forEach(el => {
+    const q = questions.find(x => x.id === el.dataset.q);
+    el.querySelector('[data-q-label]').addEventListener('input', e => { q.label = e.target.value; updateCost(); });
+    el.querySelector('[data-q-scope]').addEventListener('change', e => { q.scope = e.target.value; updateCost(); });
+    el.querySelector('[data-q-required]').addEventListener('change', e => { q.required = e.target.checked; });
+    el.querySelector('[data-q-remove]').addEventListener('click', () => {
+      questions = questions.filter(x => x.id !== q.id);
+      renderQuestions(); announce('Question removed.');
+    });
+  });
+  updateCost();
+}
+
+function updateCost() {
+  const perSong = questions.filter(q => q.scope === 'song').length;
+  document.getElementById('qCost').textContent = perSong
+    ? `${perSong} per-song question${perSong === 1 ? '' : 's'} — a student with 10 songs answers ${perSong * 10} boxes.`
+    : '';
+}
+
+document.getElementById('addQuestionBtn').addEventListener('click', () => {
+  questions.push(newQuestion());
+  renderQuestions();
+  const last = document.querySelector('#questionList [data-q]:last-child [data-q-label]');
+  last.focus({ preventScroll: true });
+  last.closest('[data-q]').scrollIntoView({ block: 'nearest', behavior: 'auto' });
+});
+
+const dlg = createDialog('newSurveyDlg');
+document.getElementById('newSurveyBtn').addEventListener('click', () => {
+  // Seeded so a new survey works out of the box.
+  questions = [newQuestion({ label: 'Why did you pick these songs?', scope: 'submission', required: true })];
+  renderQuestions();
+  dlg.open();
+});
+document.getElementById('randomizeBtn').addEventListener('click', () => {
+  const A = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no I/O/0/1 — read aloud in class
+  const pick = n => Array.from({length:n}, () => A[Math.floor(Math.random()*A.length)]).join('');
+  document.getElementById('newCode').value = `${pick(2)}-${pick(4)}`;
+});
+document.getElementById('newSurveyForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const cls  = document.getElementById('newClassName').value.trim() || 'Untitled class';
+  const code = document.getElementById('newCode').value.trim().toUpperCase();
+  const qs = questions.filter(q => q.label.trim());
+  surveys.push({ cls, code, lists:['Study & Focus','Class Energy'], n:0, active:true, questions: qs });
+  renderSurveys(); dlg.close();
+  announce(`Survey ${cls} created with code ${code} and ${qs.length} question${qs.length === 1 ? '' : 's'}.`);
+});
+
+renderProvider(); renderSurveys(); renderSubs();
+</script>
+</body>
+</html>

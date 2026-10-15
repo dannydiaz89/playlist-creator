@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root { color-scheme: light; }
+
+  body {
+    @apply bg-canvas text-ink antialiased;
+    line-height: 1.6;
+  }
+  h1, h2, h3 { line-height: 1.3; }
+
+  /* Focus is never removed — WCAG 2.4.7. */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid theme('colors.accent.DEFAULT');
+    outline-offset: 2px;
+    border-radius: theme('borderRadius.lg');
+  }
+
+  /* Breathing room when a newly added row is scrolled into view. */
+  [data-song-rows] > * { scroll-margin-block: 5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

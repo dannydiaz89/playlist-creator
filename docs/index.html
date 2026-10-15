@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classroom Playlist Creator — Join</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/tokens.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
+</head>
+<body class="min-h-screen flex flex-col">
+
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<!-- Prototype-only nav. Not part of the product. -->
+<nav class="bg-slate-900 text-slate-300 text-sm" aria-label="Prototype pages">
+  <div class="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+    <span class="font-medium text-slate-400">Prototype</span>
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+      <span class="text-white font-medium">Join</span>
+      <a class="hover:text-white underline underline-offset-2" href="mockups/student-survey.html?code=P4-BEATS">Student survey</a>
+      <a class="hover:text-white underline underline-offset-2" href="mockups/teacher-dashboard.html">Teacher dashboard</a>
+      <a class="hover:text-white underline underline-offset-2" href="mockups/review-submission.html">Review &amp; sync</a>
+    </div>
+  </div>
+</nav>
+
+<header class="bg-white border-b border-rule">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-accent text-white grid place-items-center" aria-hidden="true">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"/></svg>
+      </div>
+      <div>
+        <div class="font-semibold text-ink leading-tight">Playlist Creator</div>
+        <div class="text-sm text-muted leading-tight">Classroom music curation</div>
+      </div>
+    </div>
+    <button id="signInBtn" class="btn btn-secondary">
+      <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+      Teacher sign in
+    </button>
+  </div>
+</header>
+
+<main id="main" class="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
+
+  <div class="text-center mb-8">
+    <h1 class="text-2xl font-semibold text-ink">Join your class playlist</h1>
+    <p class="text-base text-muted mt-2 max-w-md mx-auto">
+      Enter the code your teacher shared to suggest music for your class.
+    </p>
+  </div>
+
+  <div class="panel p-6 sm:p-8">
+    <form id="joinForm" novalidate>
+      <label for="joinCode" class="block text-sm font-medium text-ink mb-1.5">
+        Class join code <span class="text-bad" aria-hidden="true">*</span><span class="sr-only">(required)</span>
+      </label>
+      <input id="joinCode" name="joinCode" class="field font-mono text-lg font-semibold uppercase tracking-wide"
+             placeholder="P4-BEATS" maxlength="12" autocomplete="off"
+             aria-describedby="joinHelp joinError" required>
+      <p id="joinHelp" class="text-sm text-muted mt-1.5">Check the whiteboard for your period's code.</p>
+      <p id="joinError" class="text-sm text-bad mt-1.5 font-medium" role="alert" hidden></p>
+
+      <div class="mt-5 pt-5 border-t border-rule">
+        <p class="text-sm font-medium text-ink mb-2">Demo codes</p>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="btn btn-secondary font-mono" data-code="P4-BEATS">P4-BEATS</button>
+          <button type="button" class="btn btn-secondary font-mono" data-code="STUDY-22">STUDY-22</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-full mt-5">
+        Enter classroom survey
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+      </button>
+    </form>
+  </div>
+
+  <p class="text-sm text-muted mt-6 text-center max-w-md mx-auto">
+    Your suggestions are reviewed by your teacher before anything is added to a playlist.
+  </p>
+</main>
+
+<footer class="border-t border-rule bg-white py-5">
+  <p class="max-w-6xl mx-auto px-4 text-sm text-muted text-center">
+    Classroom Playlist Creator — prototype
+  </p>
+</footer>
+
+<!-- Teacher sign-in dialog -->
+<div id="signInDlg" class="dlg-backdrop" role="dialog" aria-modal="true" aria-labelledby="signInTitle" hidden>
+  <div class="dlg p-6">
+    <div class="flex items-start justify-between gap-4 mb-5">
+      <h2 id="signInTitle" class="text-lg font-medium text-ink">Teacher sign in</h2>
+      <button data-dlg-close class="btn btn-ghost !min-h-0 !p-2 -m-2" aria-label="Close dialog">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <form id="signInForm" novalidate class="space-y-4">
+      <div>
+        <label for="email" class="block text-sm font-medium text-ink mb-1.5">Email</label>
+        <input id="email" type="email" class="field" placeholder="you@school.edu" autocomplete="username" data-autofocus required>
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-medium text-ink mb-1.5">Password</label>
+        <input id="password" type="password" class="field" autocomplete="current-password" required>
+      </div>
+      <p id="signInError" class="text-sm text-bad font-medium" role="alert" hidden></p>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" data-dlg-close class="btn btn-secondary">Cancel</button>
+        <button type="submit" class="btn btn-primary">Sign in</button>
+      </div>
+    </form>
+
+    <p class="text-sm text-muted mt-5 pt-5 border-t border-rule">
+      Handled by Better Auth. Sign-up is not public — teacher accounts are seeded or invite-gated.
+    </p>
+  </div>
+</div>
+
+<script type="module">
+import { createDialog, announce } from './assets/proto.js';
+
+const dlg = createDialog('signInDlg');
+document.getElementById('signInBtn').addEventListener('click', dlg.open);
+
+const codeInput = document.getElementById('joinCode');
+const codeError = document.getElementById('joinError');
+
+document.querySelectorAll('[data-code]').forEach(b =>
+  b.addEventListener('click', () => { codeInput.value = b.dataset.code; codeInput.focus(); })
+);
+
+document.getElementById('joinForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const code = codeInput.value.trim().toUpperCase();
+  if (!code) {
+    codeError.textContent = 'Enter the code your teacher gave you.';
+    codeError.hidden = false;
+    codeInput.setAttribute('aria-invalid', 'true');
+    announce('Error: enter the code your teacher gave you.');
+    codeInput.focus();
+    return;
+  }
+  codeError.hidden = true;
+  codeInput.removeAttribute('aria-invalid');
+  location.href = `mockups/student-survey.html?code=${encodeURIComponent(code)}`;
+});
+
+document.getElementById('signInForm').addEventListener('submit', e => {
+  e.preventDefault();
+  // Prototype: any non-empty credentials proceed. The real form posts to
+  // /api/auth/sign-in/email and the server decides.
+  location.href = 'mockups/teacher-dashboard.html';
+});
+</script>
+</body>
+</html>
